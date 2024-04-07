@@ -1,0 +1,107 @@
+Turbo Assembler	 Version 4.0	    08/04/24 01:12:37	    Page 1
+kp2.asm
+
+
+
+      1	0000			     STSEG SEGMENT PARA	STACK "STACK"
+      2	0000  20*(??)			       DB 32 DUP(?)
+      3	0020			     STSEG ENDS
+      4	0000			     DSEG SEGMENT PARA PUBLIC "DATA"
+      5	0000  45 6E 74 65 72 20	6E+	 MESSTR1 DB	"Enter number ->$"
+      6	      75 6D 62 65 72 20	2D+
+      7	      3E 24
+      8	0010  4E 75 6D 62 65 72	20+	 MESSTR2 DB	"Number	is negative$"
+      9	      69 73 20 6E 65 67	61+
+     10	      74 69 76 65 24
+     11	0023  4E 75 6D 62 65 72	20+	 MESSTR3 DB	"Number	is positive$"
+     12	      69 73 20 70 6F 73	69+
+     13	      74 69 76 65 24
+     14	0036					 NUMPAR	LABEL	 BYTE
+     15	0036  06			 MAXLEN	 DB	6
+     16	0037  ??			 NUBLEN	 DB	?
+     17	0038  06*(30)			 NUMFLD	 DB	6 DUP('0')
+     18	003E			     DSEG ENDS
+     19	0000			     CSEG SEGMENT PARA PUBLIC "CODE"
+     20	0000			     MAIN PROC FAR
+     21					      ASSUME CS: CSEG, DS: DSEG, SS: STSEG    ;
+     22	0000  1E			      PUSH   DS				      ;	init
+     23	0001  33 C0			      XOR    AX, AX			      ;
+     24	0003  50			      PUSH   AX				      ;
+     25
+     26					 ; print request
+     27	0004  B8 0000s			      MOV    AX, DSEG
+     28	0007  8E D8			      MOV    DS, AX
+     29	0009  BA 0000r			      LEA    DX, MESSTR1
+     30	000C  B4 09			      MOV    AH, 9
+     31	000E  CD 21			      INT    21h
+     32
+     33					 ; get number
+     34	0010  BA 0036r			      LEA    DX, NUMPAR
+     35	0013  B4 0A			      MOV    AH, 10
+     36	0015  CD 21			      INT    21h
+     37
+     38					 ; check is negative
+     39	0017  FC			      CLD
+     40	0018  BE 0038r			      LEA    SI, NUMFLD
+     41	001B  AC			      LODSB
+     42	001C  3C 2D			      CMP    AL, '-'
+     43	001E  74 0C			      JE     PNG
+     44	0020  75 01			      JNE    PPOS
+     45	0022  CB		     E90:     RET
+     46	0023			     MAIN ENDP
+     47
+     48	0023			     PPOS PROC NEAR				      ;	print positive
+     49	0023  BA 0023r			      LEA    DX, MESSTR3
+     50	0026  B4 09			      MOV    AH, 9
+     51	0028  CD 21			      INT    21h
+     52	002A  EB F6			      JMP E90
+     53	002C			     PPOS ENDP
+     54
+     55	002C			     PNG PROC NEAR				      ;	print negative
+     56	002C  BA 0010r			      LEA    DX, MESSTR2
+     57	002F  B4 09			      MOV    AH, 9
+Turbo Assembler	 Version 4.0	    08/04/24 01:12:37	    Page 2
+kp2.asm
+
+
+
+     58	0031  CD 21			      INT    21h
+     59	0033  EB ED			      JMP E90
+     60	0035			     PNG ENDP
+     61
+     62	0035			     CSEG ENDS
+     63					  END MAIN
+Turbo Assembler	 Version 4.0	    08/04/24 01:12:37	    Page 3
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "08/04/24"
+??FILENAME			  Text	 "kp2	  "
+??TIME				  Text	 "01:12:37"
+??VERSION			  Number 0400
+@CPU				  Text	 0101H
+@CURSEG				  Text	 CSEG
+@FILENAME			  Text	 KP2
+@WORDSIZE			  Text	 2
+E90				  Near	 CSEG:0022
+MAIN				  Far	 CSEG:0000
+MAXLEN				  Byte	 DSEG:0036
+MESSTR1				  Byte	 DSEG:0000
+MESSTR2				  Byte	 DSEG:0010
+MESSTR3				  Byte	 DSEG:0023
+NUBLEN				  Byte	 DSEG:0037
+NUMFLD				  Byte	 DSEG:0038
+NUMPAR				  Byte	 DSEG:0036
+PNG				  Near	 CSEG:002C
+PPOS				  Near	 CSEG:0023
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+CSEG				  16  0035 Para	  Public  CODE
+DSEG				  16  003E Para	  Public  DATA
+STSEG				  16  0020 Para	  Stack	  STACK
+
