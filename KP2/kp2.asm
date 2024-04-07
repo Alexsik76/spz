@@ -12,7 +12,7 @@ DSEG SEGMENT PARA PUBLIC "DATA"
 DSEG ENDS
 CSEG SEGMENT PARA PUBLIC "CODE"
 MAIN PROC FAR
-         ASSUME CS: CSEG, DS: DSEG, SS: STSEG    ;
+         ASSUME CS: CSEG, DS: DSEG, SS: STSEG, ES: DSEG    ;
          PUSH   DS                               ; init
          XOR    AX, AX                           ;
          PUSH   AX                               ;
@@ -20,6 +20,7 @@ MAIN PROC FAR
     ; print request
          MOV    AX, DSEG
          MOV    DS, AX
+         MOV    ES, AX
          LEA    DX, MESSTR1
          MOV    AH, 9
          INT    21h
@@ -31,11 +32,11 @@ MAIN PROC FAR
 
     ; check is negative
          CLD
-         LEA    SI, NUMFLD
-         LODSB
-         CMP    AL, '-'
-         JE     PNG
+         LEA    DI, NUMFLD
+         MOV    AL, '-'
+         SCASB
          JNE    PPOS
+         JE     PNG
 E90:     RET
 MAIN ENDP
 

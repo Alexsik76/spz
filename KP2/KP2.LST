@@ -1,4 +1,4 @@
-Turbo Assembler	 Version 4.0	    08/04/24 01:12:37	    Page 1
+Turbo Assembler	 Version 4.0	    08/04/24 01:39:20	    Page 1
 kp2.asm
 
 
@@ -23,7 +23,7 @@ kp2.asm
      18	003E			     DSEG ENDS
      19	0000			     CSEG SEGMENT PARA PUBLIC "CODE"
      20	0000			     MAIN PROC FAR
-     21					      ASSUME CS: CSEG, DS: DSEG, SS: STSEG    ;
+     21					      ASSUME CS: CSEG, DS: DSEG, SS: STSEG, ES:	DSEG	;
      22	0000  1E			      PUSH   DS				      ;	init
      23	0001  33 C0			      XOR    AX, AX			      ;
      24	0003  50			      PUSH   AX				      ;
@@ -31,47 +31,48 @@ kp2.asm
      26					 ; print request
      27	0004  B8 0000s			      MOV    AX, DSEG
      28	0007  8E D8			      MOV    DS, AX
-     29	0009  BA 0000r			      LEA    DX, MESSTR1
-     30	000C  B4 09			      MOV    AH, 9
-     31	000E  CD 21			      INT    21h
-     32
-     33					 ; get number
-     34	0010  BA 0036r			      LEA    DX, NUMPAR
-     35	0013  B4 0A			      MOV    AH, 10
-     36	0015  CD 21			      INT    21h
-     37
-     38					 ; check is negative
-     39	0017  FC			      CLD
-     40	0018  BE 0038r			      LEA    SI, NUMFLD
-     41	001B  AC			      LODSB
-     42	001C  3C 2D			      CMP    AL, '-'
-     43	001E  74 0C			      JE     PNG
-     44	0020  75 01			      JNE    PPOS
-     45	0022  CB		     E90:     RET
-     46	0023			     MAIN ENDP
-     47
-     48	0023			     PPOS PROC NEAR				      ;	print positive
-     49	0023  BA 0023r			      LEA    DX, MESSTR3
-     50	0026  B4 09			      MOV    AH, 9
-     51	0028  CD 21			      INT    21h
-     52	002A  EB F6			      JMP E90
-     53	002C			     PPOS ENDP
-     54
-     55	002C			     PNG PROC NEAR				      ;	print negative
-     56	002C  BA 0010r			      LEA    DX, MESSTR2
-     57	002F  B4 09			      MOV    AH, 9
-Turbo Assembler	 Version 4.0	    08/04/24 01:12:37	    Page 2
+     29	0009  8E C0			      MOV    ES, AX
+     30	000B  BA 0000r			      LEA    DX, MESSTR1
+     31	000E  B4 09			      MOV    AH, 9
+     32	0010  CD 21			      INT    21h
+     33
+     34					 ; get number
+     35	0012  BA 0036r			      LEA    DX, NUMPAR
+     36	0015  B4 0A			      MOV    AH, 10
+     37	0017  CD 21			      INT    21h
+     38
+     39					 ; check is negative
+     40	0019  FC			      CLD
+     41	001A  BF 0038r			      LEA    DI, NUMFLD
+     42	001D  B0 2D			      MOV    AL, '-'
+     43	001F  AE			      SCASB
+     44	0020  75 03			      JNE    PPOS
+     45	0022  74 0A			      JE     PNG
+     46	0024  CB		     E90:     RET
+     47	0025			     MAIN ENDP
+     48
+     49	0025			     PPOS PROC NEAR				      ;	print positive
+     50	0025  BA 0023r			      LEA    DX, MESSTR3
+     51	0028  B4 09			      MOV    AH, 9
+     52	002A  CD 21			      INT    21h
+     53	002C  EB F6			      JMP E90
+     54	002E			     PPOS ENDP
+     55
+     56	002E			     PNG PROC NEAR				      ;	print negative
+     57	002E  BA 0010r			      LEA    DX, MESSTR2
+Turbo Assembler	 Version 4.0	    08/04/24 01:39:20	    Page 2
 kp2.asm
 
 
 
-     58	0031  CD 21			      INT    21h
-     59	0033  EB ED			      JMP E90
-     60	0035			     PNG ENDP
-     61
-     62	0035			     CSEG ENDS
-     63					  END MAIN
-Turbo Assembler	 Version 4.0	    08/04/24 01:12:37	    Page 3
+     58	0031  B4 09			      MOV    AH, 9
+     59	0033  CD 21			      INT    21h
+     60	0035  EB ED			      JMP E90
+     61	0037			     PNG ENDP
+     62
+     63	0037			     CSEG ENDS
+     64					  END MAIN
+Turbo Assembler	 Version 4.0	    08/04/24 01:39:20	    Page 3
 Symbol Table
 
 
@@ -81,13 +82,13 @@ Symbol Name			  Type	 Value
 
 ??DATE				  Text	 "08/04/24"
 ??FILENAME			  Text	 "kp2	  "
-??TIME				  Text	 "01:12:37"
+??TIME				  Text	 "01:39:20"
 ??VERSION			  Number 0400
 @CPU				  Text	 0101H
 @CURSEG				  Text	 CSEG
 @FILENAME			  Text	 KP2
 @WORDSIZE			  Text	 2
-E90				  Near	 CSEG:0022
+E90				  Near	 CSEG:0024
 MAIN				  Far	 CSEG:0000
 MAXLEN				  Byte	 DSEG:0036
 MESSTR1				  Byte	 DSEG:0000
@@ -96,12 +97,12 @@ MESSTR3				  Byte	 DSEG:0023
 NUBLEN				  Byte	 DSEG:0037
 NUMFLD				  Byte	 DSEG:0038
 NUMPAR				  Byte	 DSEG:0036
-PNG				  Near	 CSEG:002C
-PPOS				  Near	 CSEG:0023
+PNG				  Near	 CSEG:002E
+PPOS				  Near	 CSEG:0025
 
 Groups & Segments		  Bit Size Align  Combine Class
 
-CSEG				  16  0035 Para	  Public  CODE
+CSEG				  16  0037 Para	  Public  CODE
 DSEG				  16  003E Para	  Public  DATA
 STSEG				  16  0020 Para	  Stack	  STACK
 
