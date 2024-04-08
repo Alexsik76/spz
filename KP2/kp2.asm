@@ -16,35 +16,39 @@ DSEG SEGMENT PARA PUBLIC "DATA"
 DSEG ENDS
 CSEG SEGMENT PARA PUBLIC "CODE"
 MAIN PROC FAR
-             ASSUME CS: CSEG, DS: DSEG, SS: STSEG, ES: DSEG     ;
-             PUSH   DS                                          ; init
-             XOR    AX, AX                                      ;
-             PUSH   AX                                          ;
-     
-    
-     ; print request
+             ASSUME CS: CSEG, DS: DSEG, SS: STSEG, ES: DSEG
+             PUSH   DS
+             XOR    AX, AX
+             PUSH   AX
              MOV    AX, DSEG
              MOV    DS, AX
              MOV    ES, AX
+
+             CALL   GTINPT
+             CALL   CHKSIGN
+             CALL   CHKNMBR
+             CALL   PRNMSG
+             RET
+MAIN ENDP
+
+GTINPT PROC NEAR                                                ; get input
              LEA    DX, MESSTR1
-             MOV    AH, 9
-             INT    21h
-    
-     ; get number
+             CALL   PRNMSG
              LEA    DX, NUMPAR
              MOV    AH, 10
              INT    21h
+             RET
+GTINPT ENDP
 
-     ; check is negative
+CHKSIGN PROC NEAR                                               ; check is negative
              CLD
              LEA    DI, NUMFLD
              MOV    AL, '-'
              SCASB
              JNE    PPOS
              JE     PNG
-     E80:    CALL   CHKNMBR
              RET
-MAIN ENDP
+CHKSIGN ENDP
 
 CHKNMBR PROC NEAR                                               ; check is number
              CLD
@@ -64,27 +68,27 @@ CHKNMBR PROC NEAR                                               ; check is numbe
              RET
 CHKNMBR ENDP
 
-PNN PROC NEAR                                                   ; print not number
-             LEA    DX, MESSTR4
+PRNMSG PROC NEAR                                                ; print message
              MOV    AH, 9
              INT    21h
              RET
+PRNMSG ENDP
+
+PNN PROC NEAR                                                   ; not number
+             LEA    DX, MESSTR4
+             RET
 PNN ENDP
 
-PPOS PROC NEAR                                                  ; print positive
+PPOS PROC NEAR                                                  ; positive
              LEA    DX, MESSTR3
-             MOV    AH, 9
-             INT    21h
              MOV    AL, 00h
-             JMP    E80
+             RET
 PPOS ENDP
 
-PNG PROC NEAR                                                   ; print negative
+PNG PROC NEAR                                                   ; negative
              LEA    DX, MESSTR2
-             MOV    AH, 9
-             INT    21h
              MOV    AL, 01h
-             JMP    E80
+             RET
 PNG ENDP
 
 CSEG ENDS
