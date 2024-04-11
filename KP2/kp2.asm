@@ -9,10 +9,10 @@ DSEG SEGMENT PARA PUBLIC "DATA"
         MESSERR DB     CR, LF, "Not number!$"
         SIGN    DB     0
         MULT10  DB     1
-        BINVAL  DB     0
+        BINVAL  DW     0
         ASCVAL  DB     ?
-        TOMUL   DB     7
-        RESMUL  DB     7 DUP('0')
+        TOMUL   DW     7
+        RESMUL  DW     0
         RESASC  DB     CR, LF, 6 DUP(' '), '$'
                 NUMPAR LABEL    BYTE
         MAXLEN  DB     6
@@ -34,7 +34,7 @@ MAIN PROC FAR
                 CALL   CHKNMBR
                 JZ     E10
                 CALL   ASBI
-                MOV    AL, BINVAL
+                MOV    AX, BINVAL
                 MUL    TOMUL
                 LEA    BX, RESMUL
                 MOV    [BX], AX
@@ -122,7 +122,7 @@ ASBI PROC NEAR                                                        ; convert 
                 MOV    AL, [SI+BX]
                 AND    AX, 000FH
                 MUL    MULT10
-                ADD    BINVAL, AL
+                ADD    BINVAL, AX
                 MOV    AL, MULT10
                 MUL    CX
                 MOV    MULT10, AL
@@ -134,10 +134,10 @@ BIAS PROC
                 
                 MOV    CX,0010                                        ;Фактор деления
                 LEA    SI,RESASC+7                                    ;Адрес ASCVAL
-                MOV    AL,RESMUL                                      ;Загрузить дв. число
+                MOV    AX,RESMUL                                      ;Загрузить дв. число
                 
         D20:    
-                CMP    AL,10                                          ;Значение меньше 10?
+                CMP    AX,10                                          ;Значение меньше 10?
                 JB     D30                                            ; Да - выйти
                 XOR    DX,DX                                          ;Очистить часть частного
                 DIV    CX                                             ;Разделить на 10
