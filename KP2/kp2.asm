@@ -2,16 +2,15 @@ STSEG SEGMENT PARA STACK "STACK"
               DB 256 DUP(?)
 STSEG ENDS
 DSEG SEGMENT PARA PUBLIC "DATA"
-        CR      EQU    13                              ;или EQU 0DH
-        LF      EQU    10                              ;или EQU 0AH
+        CR      EQU    13                               ;или EQU 0DH
+        LF      EQU    10                               ;или EQU 0AH
         MESSTR1 DB     "Enter number: $"
-        MESSERR DB     CR, LF, "Not number!$"
-        MESS1 DB     CR, LF, "Value to big!$"
+        MESSER1 DB     CR, LF, "Not number!$"
+        MESSER2 DB     CR, LF, "Value too big!$"
         SIGN    DB     0
         ERRVAL  DB     0
         MULT10  DW     1
         BINVAL  DW     0
-        ASCVAL  DB     ?
         TOMUL   DW     7
         RESMUL  DW     0
         RESASC  DB     CR, LF, 6 DUP(' '), '$'
@@ -29,22 +28,21 @@ MAIN PROC FAR
                  PUSH   AX
                  MOV    AX, DSEG
                  MOV    DS, AX
-                 MOV    ES, AX
                  CALL   GTINPT
                  CALL   CHKSIGN
-                 CALL   ASBI
+                 CALL   ASCBI
                  CMP    ERRVAL, 1
-                 JE     E10
+                 JE     A20
                  MOV    AX, BINVAL
-                 MUL    TOMUL
-                 JC     TOBIG
-                 CMP    ERRVAL, 1
-                 JE     E10
+                 IMUL   TOMUL
+                 JO     A10
                  LEA    BX, RESMUL
                  MOV    [BX], AX
-                 CALL   BIAS
+                 CALL   BIASC
                  LEA    DX, RESASC
-        E10:     CALL   PRNMSG
+                 JMP    A20
+        A10:     LEA    DX, MESSER2
+        A20:     CALL   PRNMSG
                  RET
 MAIN ENDP
 
@@ -58,15 +56,14 @@ GTINPT PROC NEAR                                             ; get input
 GTINPT ENDP
 
 CHKSIGN PROC NEAR                                            ; check is negative
-                 CLD
                  LEA    DI, NUMFLD
                  MOV    AL, [DI]
                  CMP    AL, 2dh
                  JNE    Z11
                  MOV    SIGN, 1
-                 jmp    Z12
+                 JMP    Z12
         Z11:     MOV    SIGN, 0
-        Z12:     ret
+        Z12:     RET
 CHKSIGN ENDP
 
 PRNMSG PROC NEAR                                             ; print message
@@ -84,19 +81,19 @@ CHECKNUM PROC NEAR
 CHECKNUM ENDP
 
 PNN PROC NEAR                                                ; not number
-                 LEA    DX, MESSERR
+                 LEA    DX, MESSER1
                  MOV    ERRVAL, 1
                  RET
 PNN ENDP
 
-TOBIG PROC NEAR                                                ; to big number
-                 LEA    DX, MESS1
+TOBIG PROC NEAR                                              ; to big number
+                 LEA    DX, MESSER2
                  MOV    ERRVAL, 1
                  RET
 TOBIG ENDP
 
 
-ASBI PROC NEAR                                               ; convert ASCII to bin
+ASCBI PROC NEAR                                               ; convert ASCII to bin
                  XOR    CX, CX
                  MOV    CL, NUMLEN
                  LEA    SI, NUMFLD-1                         ; to get in 101 the last symbol addr
@@ -111,45 +108,52 @@ ASBI PROC NEAR                                               ; convert ASCII to 
                  MOV    AL, [SI+BX]
                  CALL   CHECKNUM
                  CMP    ERRVAL, 1
-                 JE     C50
+                 JE     C70
                  SUB    AL, '0'
                  MUL    MULT10
                  ADD    BINVAL, AX
-                 JC     TOBIG
+                 JO     TOBIG
                  CMP    ERRVAL, 1
-                 JE     C50
+                 JE     C70
                  MOV    AX, 10
                  MUL    MULT10
                  MOV    MULT10, AX
                  XOR    AX, AX
                  LOOP   C30
-        C50:     RET
-ASBI ENDP
-BIAS PROC                                                    ; convert bin to ASCII
-                 MOV    CX,0010
+        C50:                                                 ; make bin negative
+                 CMP    SIGN, 1
+                 JNE    C70
+        C60:     NEG    BINVAL
+        C70:     RET
+ASCBI ENDP
+BIASC PROC                                                    ; convert bin to ASCII
                  LEA    SI,RESASC+7
                  MOV    AX,RESMUL
-                
+                 MOV    CX, 10
+                 OR     AX, AX
+                 JNS    D20
+                 NEG    AX
         D20:     
                  CMP    AX,10
                  JB     D30
                  XOR    DX,DX
                  DIV    CX
-                 OR     DL,30H
+                 ADD    DL,'0'
                  MOV    [SI],DL
                  DEC    SI
                  JMP    D20
         D30:     
-                 OR     AL,30H
-                 MOV    [SI],AL
-                 CMP    SIGN, 1
-                 JE     D40
-                 JMP    D50
-        D40:     DEC    SI
-                 MOV    DL, 2DH
+                 MOV    DL, AL
+                 ADD    DL,'0'
                  MOV    [SI],DL
-        D50:     RET
-BIAS ENDP
+                 MOV    AX,RESMUL
+                 OR     AX, AX
+                 JNS    D40
+                 DEC    SI
+                 MOV    DL, '-'
+                 MOV    [SI],DL
+        D40:     RET
+BIASC ENDP
 
 CSEG ENDS
      END MAIN
