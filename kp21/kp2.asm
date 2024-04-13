@@ -1,11 +1,12 @@
 STSEG SEGMENT PARA STACK "STACK"
-          DB 32 DUP(?)
+          DB 64 DUP(?)
 STSEG ENDS
 DSEG SEGMENT PARA PUBLIC "DATA"
     inputPrompt db 'Enter number: $'
     errorMsg    db 13, 10,'Error. Try again.$'
     resultMsg   db 13, 10, 'Result:', 13, 10,  '$'
-    inputBuffer db 6                                  ; Максимальна довжина числа + знак нового рядка
+    inputBuffer db 6                                   ; Максимальна довжина числа + знак нового рядка
+    outputBuffer db 13, 10, 6 DUP(' '), '$'
     number      dw 0
 
 DSEG ENDS
@@ -28,7 +29,8 @@ MAIN PROC FAR
                     jc     inputNumber                                ; Якщо сталася помилка, повторити запит
 
     ; Виконання арифметичної операції
-                    sbb    number, 11
+                   
+                    sub number, 2
 
     ; Виведення результату
                     lea    dx, resultMsg
@@ -89,35 +91,32 @@ stringToInteger endp
     ; Процедура для виведення числа на екран
 printInteger proc near
     ; Конвертація числа у рядок і його виведення
-                    mov    ax, number
+
                     call   integerToString
                     mov    ah, 09h
-                    lea    dx, inputBuffer                            ; Використання inputBuffer як буфера для рядка
+                    lea    dx, outputBuffer                            ; Використання inputBuffer як буфера для рядка
                     int    21h
                     ret
 printInteger endp
 
     ; Процедура для конвертації числа у рядок
 integerToString proc near
-                  
-                    MOV    CX,0010
-                    LEA    SI,inputBuffer+6
+                    mov    ax, number
+                    MOV    CX,10
+                    LEA    SI,outputBuffer+7
+
     D20:            
                     CMP    AX,10
                     JB     D30
                     XOR    DX,DX
                     DIV    CX
-                    OR     DL,30H
+                    ADD    DL,30H
                     MOV    [SI],DL
                     DEC    SI
                     JMP    D20
     D30:            
-                    OR     AL,30H
+                    ADD     AL,30H
                     MOV    [SI],AL
-                    MOV    AL, '$'
-                    LEA    SI,inputBuffer+7
-                    MOV    [SI], AL
-                   
                     RET
                 
 integerToString endp
