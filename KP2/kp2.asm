@@ -93,18 +93,18 @@ TOBIG PROC NEAR                                              ; to big number
 TOBIG ENDP
 
 
-ASCBI PROC NEAR                                               ; convert ASCII to bin
+ASCBI PROC NEAR                                              ; convert ASCII to bin
                  XOR    CX, CX
                  MOV    CL, NUMLEN
-                 LEA    SI, NUMFLD-1                         ; to get in 101 the last symbol addr
+                 LEA    SI, NUMFLD-1
                  XOR    AX, AX
                  XOR    BX, BX
                  XOR    DX, DX
-                 MOV    DL, SIGN
-                 ADD    SI, DX
-                 SUB    CL, SIGN
+                 MOV    DL, SIGN                             ; if sign '-' is present, DL = 1.
+                 ADD    SI, DX                               ; In this case we start from second symbol
+                 SUB    CL, SIGN                             ; and will have shorter cycle
         C30:     
-                 MOV    BX, CX
+                 MOV    BX, CX                               ; process every symbol
                  MOV    AL, [SI+BX]
                  CALL   CHECKNUM
                  CMP    ERRVAL, 1
@@ -126,7 +126,7 @@ ASCBI PROC NEAR                                               ; convert ASCII to
         C60:     NEG    BINVAL
         C70:     RET
 ASCBI ENDP
-BIASC PROC                                                    ; convert bin to ASCII
+BIASC PROC                                                   ; convert bin to ASCII
                  LEA    SI,RESASC+7
                  MOV    AX,RESMUL
                  MOV    CX, 10
