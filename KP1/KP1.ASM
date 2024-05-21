@@ -8,19 +8,19 @@ DSEG ENDS
 CSEG SEGMENT PARA PUBLIC "CODE"
 MAIN PROC FAR
          ASSUME CS: CSEG, DS: DSEG, SS: STSEG
-    ; –∞–¥—Ä–µ—Å–∞ –ø–æ–≤–µ—Ä–Ω–µ–Ω–Ω—è
+    ; †§‡•·† ØÆ¢•‡≠•≠≠Ô
          PUSH   DS
-         MOV    AX, 0                            ; –∞–±–æ XOR AX, AX
+         MOV    AX, 0                            ; †°Æ XOR AX, AX
          PUSH   AX
-    ; —ñ–Ω—ñ—Ü—ñ–∞–ª—ñ–∑–∞—Ü—ñ—è DS
+    ; ?≠?Ê?†´?ß†Ê?Ô DS
          MOV    AX, DSEG
          MOV    DS, AX
-    ; –æ–±–Ω—É–ª—è—î–º–æ –º–∞—Å–∏–≤
+    ; Æ°≠„´ÔÛ¨Æ ¨†·®¢
          MOV    DEST, 0
          MOV    DEST+1, 0
          MOV    DEST+2, 0
          MOV    DEST+3, 0
-    ; –ø–µ—Ä–µ—Å–∏–ª–∞–Ω–Ω—è
+    ; Ø•‡•·®´†≠≠Ô
          MOV    AL, SOURCE
          MOV    DEST+3, AL
          MOV    AL, SOURCE+1
