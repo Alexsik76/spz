@@ -2,11 +2,11 @@ STSEG SEGMENT PARA STACK "STACK"
               DB 256 DUP(?)
 STSEG ENDS
 DSEG SEGMENT PARA PUBLIC "DATA"
-        CR      EQU    13                                                            ;EQU 0DH
-        LF      EQU    10                                                            ;или EQU 0AH
+        CR      EQU    13                                                             ;EQU 0DH
+        LF      EQU    10                                                             ;EQU 0AH
         MESSTR1 DB     "The program will multiply your number to 7.", CR, LF,\
-                        "You can enter from -4681 to 4681.", CR, LF,\                ; 01111111 11111111B
-                        "Enter number: $"
+                       "You can enter from -4681 to 4681.", CR, LF,\                  ; 01111111 11111111B
+                       "Enter number: $"
         MESSER1 DB     CR, LF, "Not number!$"
         MESSER2 DB     CR, LF, "Value too big!$"
         SIGN    DB     0
@@ -22,7 +22,7 @@ DSEG SEGMENT PARA PUBLIC "DATA"
         NUMFLD  DB     6 DUP('0')
         
 DSEG ENDS
-CSEG SEGMENT PARA PUBLIC "CODE"
+CSEG SEGMENT PARA PUBLIC "CODE" 
 MAIN PROC FAR
                  ASSUME CS: CSEG, DS: DSEG, SS: STSEG
                  PUSH   DS
@@ -94,7 +94,6 @@ TOBIG PROC NEAR                                              ; to big number
                  RET
 TOBIG ENDP
 
-
 ASCBI PROC NEAR                                              ; convert ASCII to bin
                  XOR    CX, CX
                  MOV    CL, NUMLEN
@@ -105,8 +104,8 @@ ASCBI PROC NEAR                                              ; convert ASCII to 
                  MOV    DL, SIGN                             ; if sign '-' is present, DL = 1.
                  ADD    SI, DX                               ; In this case we start from second symbol
                  SUB    CL, SIGN                             ; and will have shorter cycle
-        C30:     
-                 MOV    BX, CX                               ; process every symbol
+        C30:                                                 ; process every symbol
+                 MOV    BX, CX
                  MOV    AL, [SI+BX]
                  CALL   CHECKNUM
                  CMP    ERRVAL, 1
@@ -129,28 +128,28 @@ ASCBI PROC NEAR                                              ; convert ASCII to 
         C70:     RET
 ASCBI ENDP
 BIASC PROC                                                   ; convert bin to ASCII
-                 LEA    SI,RESASC
+                 LEA    SI, RESASC
                  ADD    SI, 13
-                 MOV    AX,RESMUL
+                 MOV    AX, RESMUL
                  MOV    CX, 10
                  XOR    BX, BX
                  OR     AX, AX
                  JNS    D20
                  NEG    AX
         D20:     
-                 CMP    AX,10
+                 CMP    AX, 10
                  JB     D30
-                 XOR    DX,DX
+                 XOR    DX, DX
                  DIV    CX
-                 ADD    DX,'0'
+                 ADD    DX, '0'
                  PUSH   DX
                  INC    BL
                  JMP    D20
         D30:     
-                 ADD    AX,'0'
+                 ADD    AX, '0'
                  PUSH   AX
                  INC    BL
-                 MOV    AX,RESMUL
+                 MOV    AX, RESMUL
                  OR     AX, AX
                  JNS    D35
                  DEC    SI
