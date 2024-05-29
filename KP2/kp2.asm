@@ -2,9 +2,11 @@ STSEG SEGMENT PARA STACK "STACK"
               DB 256 DUP(?)
 STSEG ENDS
 DSEG SEGMENT PARA PUBLIC "DATA"
-        CR      EQU    13                               ;или EQU 0DH
-        LF      EQU    10                               ;или EQU 0AH
-        MESSTR1 DB     "Enter number: $"
+        CR      EQU    13                                                            ;EQU 0DH
+        LF      EQU    10                                                            ;или EQU 0AH
+        MESSTR1 DB     "The program will multiply your number to 7.", CR, LF,\
+                        "You can enter from -4681 to 4681.", CR, LF,\                ; 01111111 11111111B
+                        "Enter number: $"
         MESSER1 DB     CR, LF, "Not number!$"
         MESSER2 DB     CR, LF, "Value too big!$"
         SIGN    DB     0
@@ -13,7 +15,7 @@ DSEG SEGMENT PARA PUBLIC "DATA"
         BINVAL  DW     0
         TOMUL   DW     7
         RESMUL  DW     0
-        RESASC  DB     CR, LF, 6 DUP(' '), '$'
+        RESASC  DB     CR, LF, "Result is:", 6 DUP(' ')
                 NUMPAR LABEL    BYTE
         MAXLEN  DB     6
         NUMLEN  DB     ?
@@ -36,8 +38,8 @@ MAIN PROC FAR
                  MOV    AX, BINVAL
                  IMUL   TOMUL
                  JO     A10
-                 LEA    BX, RESMUL
-                 MOV    [BX], AX
+                 LEA    SI, RESMUL
+                 MOV    [SI], AX
                  CALL   BIASC
                  LEA    DX, RESASC
                  JMP    A20
@@ -127,9 +129,11 @@ ASCBI PROC NEAR                                              ; convert ASCII to 
         C70:     RET
 ASCBI ENDP
 BIASC PROC                                                   ; convert bin to ASCII
-                 LEA    SI,RESASC+7
+                 LEA    SI,RESASC
+                 ADD    SI, 13
                  MOV    AX,RESMUL
                  MOV    CX, 10
+                 XOR    BX, BX
                  OR     AX, AX
                  JNS    D20
                  NEG    AX
@@ -138,20 +142,29 @@ BIASC PROC                                                   ; convert bin to AS
                  JB     D30
                  XOR    DX,DX
                  DIV    CX
-                 ADD    DL,'0'
-                 MOV    [SI],DL
-                 DEC    SI
+                 ADD    DX,'0'
+                 PUSH   DX
+                 INC    BL
                  JMP    D20
         D30:     
-                 MOV    DL, AL
-                 ADD    DL,'0'
-                 MOV    [SI],DL
+                 ADD    AX,'0'
+                 PUSH   AX
+                 INC    BL
                  MOV    AX,RESMUL
                  OR     AX, AX
-                 JNS    D40
+                 JNS    D35
                  DEC    SI
-                 MOV    DL, '-'
-                 MOV    [SI],DL
+                 PUSH   '-'
+                 INC    BL
+        D35:     
+                 MOV    CX, BX
+        D36:     
+                 POP    AX
+                 MOV    [SI], AL
+                 INC    SI
+                 LOOP   D36
+                 MOV    DL, '$'
+                 MOV    [SI], DL
         D40:     RET
 BIASC ENDP
 
